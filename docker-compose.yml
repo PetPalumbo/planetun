@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+
+  cfml:
+    image: lucee/lucee
+    volumes:
+    - ./api:/var/www
+    - ./password.txt:/opt/lucee/server/lucee-server/context/password.txt
+    ports:
+    - 8870:8888
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - planetun-cfml-network
+
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=planetundb
+    restart: unless-stopped
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - planetun-cfml-network
+
+networks:
+  planetun-cfml-network:
+    driver: bridge
